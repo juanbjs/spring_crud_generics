@@ -18,133 +18,114 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.guaranitech.demo.exception.BadRequestException;
 import com.guaranitech.demo.service.base.CrudService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.annotation.PostConstruct;
 
 public class BaseController<T, ID, S extends CrudService<T, ID>> {
 
-    private S service;
-    private Logger log = null;
-    private String entityName = "";
+	private S service;
+	private Logger log = null;
+	private String entityName = "";
 
 	public BaseController(S service) {
 		this.service = service;
 	}
-    
-    @PostConstruct
-    public void init() {
-        log = LoggerFactory.getLogger(this.getClass());
-        entityName = this.getClass().getName().toUpperCase();
-    }
 
-    /**
-     * {@code POST} : Create a new entity.
-     *
-     * @param object the entity to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with
-     *         body the new domain, or with status {@code 400 (Bad Request)} if the
-     *         domain has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PostMapping
-    public ResponseEntity<T> create(@RequestBody T object) throws URISyntaxException {
-        log.debug("REST requet to save: {}", object);
-        if (object == null) {
-            throw new BadRequestException("A new record cannot be created");
-        }
-        T result = service.save(object);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(result);
-    }
+	@PostConstruct
+	public void init() {
+		log = LoggerFactory.getLogger(this.getClass());
+		entityName = this.getClass().getName().toUpperCase();
+	}
 
-    /**
-     * {@code PUT  /:id} : Updates an existing domain.
-     *
-     * @param id     the id of the entity to save.
-     * @param object the entity to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
-     *         the updated entity,
-     *         or with status {@code 400 (Bad Request)} if the domain is not valid,
-     *         or with status {@code 500 (Internal Server Error)} if the domain
-     *         couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PutMapping("/{id}")
-    public ResponseEntity<T> update(
-            @PathVariable(required = false) final ID id,
-            @RequestBody T object) throws URISyntaxException {
+	@Operation(summary = "Create a new record")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Record created successfully", content = {
+					@Content(mediaType = "application/json") }),
+			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
+			@ApiResponse(responseCode = "500", description = "Server Error", content = @Content) })
+	@PostMapping
+	public ResponseEntity<T> create(@RequestBody T object) throws URISyntaxException {
+		log.debug("REST requet to save: {}", object);
+		if (object == null) {
+			throw new BadRequestException("A new record cannot be created");
+		}
+		T result = service.save(object);
+		return ResponseEntity.status(HttpStatus.CREATED).body(result);
+	}
 
-        log.debug("REST request to update: {}, {}", id, object);
+	@Operation(summary = "Update a record")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "201", description = "Record updated successfully", content = {
+					@Content(mediaType = "application/json") }),
+			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
+			@ApiResponse(responseCode = "500", description = "Server Error", content = @Content) })
+	@PutMapping("/{id}")
+	public ResponseEntity<T> update(@PathVariable(required = false) final ID id, @RequestBody T object)
+			throws URISyntaxException {
 
-        if (object == null) {
-            throw new BadRequestException("Invalid id " + entityName + " objectNull");
-        }
+		log.debug("REST request to update: {}, {}", id, object);
 
-        if (!service.existsById(id)) {
-            throw new BadRequestException("Entity not found " + entityName + " idNotFound");
-        }
+		if (object == null) {
+			throw new BadRequestException("Invalid id " + entityName + " objectNull");
+		}
 
-        T result = service.save(object);
+		if (!service.existsById(id)) {
+			throw new BadRequestException("Entity not found " + entityName + " idNotFound");
+		}
 
-        return ResponseEntity
-                .ok()
-                .body(result);
-    }
+		T result = service.save(object);
 
-    /**
-     * {@code GET} : get all the entities.
-     *
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list
-     *         of entities in body.
-     */
-    @GetMapping
-    public List<T> getAll() {
-        log.debug("REST request to get all");
-        return service.findAll();
-    }
+		return ResponseEntity.ok().body(result);
+	}
 
-    /**
-     * {@code GET  /:id} : get the "id" domain.
-     *
-     * @param id the id of the domain to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
-     *         the entity, or with status {@code 404 (Not Found)}.
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<T> getById(@PathVariable ID id) {
-        log.debug("REST request to get by id: {}", id);
-        Optional<T> object = service.findById(id);
+	@Operation(summary = "Get all records")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Return all records", content = {
+					@Content(mediaType = "application/json") }),
+			@ApiResponse(responseCode = "500", description = "Server Error", content = @Content) })
+	@GetMapping
+	public List<T> getAll() {
+		log.debug("REST request to get all");
+		return service.findAll();
+	}
 
-        if (object.isPresent())
-            return ResponseEntity.ok(object.get());
+	@Operation(summary = "Get a record by id")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Return a record by id", content = {
+					@Content(mediaType = "application/json") }),
+			@ApiResponse(responseCode = "500", description = "Server Error", content = @Content) })
+	@GetMapping("/{id}")
+	public ResponseEntity<T> getById(@PathVariable ID id) {
+		log.debug("REST request to get by id: {}", id);
+		Optional<T> object = service.findById(id);
 
-        return ResponseEntity
-                .notFound()
-                .build();
+		if (object.isPresent())
+			return ResponseEntity.ok(object.get());
 
-    }
+		return ResponseEntity.notFound().build();
 
-    /**
-     * {@code DELETE  /:id} : delete the "id" entity.
-     *
-     * @param id the id of the entity to delete.
-     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDomain(@PathVariable ID id) {
-        log.debug("REST request to delete: {}", id);
-        service.deleteById(id);
-        return ResponseEntity
-                .noContent()
-                .build();
-    }
+	}
 
-    
+	@Operation(summary = "Delete a record by id")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "201", description = "Record deleted successfully", content = {
+					@Content(mediaType = "application/json") }),
+			@ApiResponse(responseCode = "500", description = "Server Error", content = @Content) })
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteDomain(@PathVariable ID id) {
+		log.debug("REST request to delete: {}", id);
+		service.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+
 	public Logger getLogger() {
-        return log;
-    }
-	
+		return log;
+	}
+
 	public S getService() {
-        return service;
-    }
+		return service;
+	}
 }
