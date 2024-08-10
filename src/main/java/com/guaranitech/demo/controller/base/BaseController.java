@@ -4,25 +4,32 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.guaranitech.demo.exception.BadRequestException;
 import com.guaranitech.demo.service.base.CrudService;
 
+import jakarta.annotation.PostConstruct;
+
 public class BaseController<T, ID, S extends CrudService<T, ID>> {
 
-    @Autowired
     private S service;
     private Logger log = null;
     private String entityName = "";
 
+	public BaseController(S service) {
+		this.service = service;
+	}
+    
     @PostConstruct
     public void init() {
         log = LoggerFactory.getLogger(this.getClass());
@@ -132,4 +139,12 @@ public class BaseController<T, ID, S extends CrudService<T, ID>> {
                 .build();
     }
 
+    
+	public Logger getLogger() {
+        return log;
+    }
+	
+	public S getService() {
+        return service;
+    }
 }

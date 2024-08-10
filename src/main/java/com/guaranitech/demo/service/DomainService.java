@@ -10,4 +10,8 @@ import com.guaranitech.demo.repository.DomainRepository;
 @Component
 public class DomainService extends BaseService<Domain, Integer, DomainRepository> {
 
+	public DomainService(DomainRepository repository) {
+		super(repository);
+	}
+	
 }

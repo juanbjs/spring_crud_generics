@@ -7,8 +7,9 @@ import lombok.*;
 @ToString
 @Builder
 public class EntityNotFoundException extends RuntimeException {
-
-    private final String message;
+	private static final long serialVersionUID = 1L;
+	
+	private final String message;
 
     public EntityNotFoundException(String message) {
         super(message);

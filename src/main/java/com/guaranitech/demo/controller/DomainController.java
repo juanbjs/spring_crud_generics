@@ -11,4 +11,8 @@ import com.guaranitech.demo.service.DomainService;
 @RequestMapping("/api/domain")
 public class DomainController extends BaseController<Domain, Integer, DomainService> {
 
+	public DomainController(DomainService service) {
+		super(service);
+	}
+
 }
