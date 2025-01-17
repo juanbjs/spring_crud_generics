@@ -1,4 +1,4 @@
-package com.guaranitech.demo.controller.base;
+package com.guaranitech.demo.core;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -6,8 +6,10 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.guaranitech.demo.exception.BadRequestException;
-import com.guaranitech.demo.service.base.CrudService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,15 +25,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.annotation.PostConstruct;
 
-public class BaseController<T, ID, S extends CrudService<T, ID>> {
+@Component
+public class CrudController<T, ID> {
 
-	private S service;
 	private Logger log = null;
 	private String entityName = "";
 
-	public BaseController(S service) {
-		this.service = service;
-	}
+	@Autowired
+	private CrudService<T, ID> service;
 
 	@PostConstruct
 	public void init() {
@@ -125,7 +125,4 @@ public class BaseController<T, ID, S extends CrudService<T, ID>> {
 		return log;
 	}
 
-	public S getService() {
-		return service;
-	}
 }

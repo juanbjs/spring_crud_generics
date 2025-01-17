@@ -1,4 +1,4 @@
-package com.guaranitech.demo.model;
+package com.guaranitech.demo.domain;
 
 import java.io.Serializable;
 

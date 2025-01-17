@@ -1,4 +1,4 @@
-package com.guaranitech.demo.service.base;
+package com.guaranitech.demo.core;
 
 import java.util.List;
 import java.util.Optional;

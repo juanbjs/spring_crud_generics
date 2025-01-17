@@ -1,21 +1,22 @@
-package com.guaranitech.demo.service.base;
+package com.guaranitech.demo.core;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Component;
 
-public class BaseService<T, ID, R extends JpaRepository<T, ID>> implements CrudService<T, ID> {
+@Component
+public class CrudServiceImpl<T, ID> implements CrudService<T, ID> {
 
-	private R repository;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	public BaseService(R repository) {
-		this.repository = repository;
-	}
-	
+	@Autowired
+	private JpaRepository<T, ID> repository;
+
 	@Override
 	public Optional<T> findById(ID id) {
 		Optional<T> result = repository.findById(id);
@@ -77,10 +78,6 @@ public class BaseService<T, ID, R extends JpaRepository<T, ID>> implements CrudS
 	@Override
 	public void deleteAllById(Iterable<? extends ID> ids) {
 		repository.deleteAllById(ids);
-	}
-
-	public R getRepository() {
-		return repository;
 	}
 
 	public Logger getLog() {
